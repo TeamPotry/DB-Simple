@@ -53,7 +53,6 @@ public void OnMapStart()
 
 public void OnClientAuthorized(int client, const char[] auth)
 {
-	// TODO: Read Data.
 	LoadedPlayerData[client] = DBSPlayerData.Load(client);
 }
 
