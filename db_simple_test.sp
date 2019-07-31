@@ -26,15 +26,25 @@ static const char g_strTestColumn[][] = {
 	"value_2"
 };
 
+static const char g_strNoUniqueTestColumn[][] = {
+	"steam_id",
+	"value",
+	"value_2"
+};
+
 public void DBS_OnLoadData(DBSData data)
 {
 	KeyValues tabledata = DBSData.CreateTableData("test");
-	KeyValues tableTestData = DBSData.CreateTableData("test2");
+	KeyValues tableTestData = DBSData.CreateTableData("test2", true);
 
 	for(int loop = 0; loop < sizeof(g_strTestColumn); loop++)
 	{
 		DBSData.PushTableData(tabledata, g_strTestColumn[loop], KvData_String);
-		DBSData.PushTableData(tableTestData, g_strTestColumn[loop], KvData_String);
+	}
+
+	for(int loop = 0; loop < sizeof(g_strNoUniqueTestColumn); loop++)
+	{
+		DBSData.PushTableData(tableTestData, g_strNoUniqueTestColumn[loop], KvData_String);
 	}
 
 	data.Add("test", tabledata);
@@ -46,7 +56,7 @@ public void DBS_OnLoadData(DBSData data)
 
 public Action DBSTest_Cmd(int client, int args)
 {
-    int value;
+    int value, noUniqueValue;
     char temp[8], export[4096];
     DBSData dbsMain = DBSData.Get();
     DBSPlayerData playerData = DBSPlayerData.GetClientData(client);
@@ -57,13 +67,13 @@ public Action DBSTest_Cmd(int client, int args)
     Format(temp, sizeof(temp), "%d", value);
     playerData.SetStringData("test", "test", "123456", "value", temp);
 
-    playerData.GetData("test", "test2", "123456", "value", temp, 8);
+    playerData.GetData("test", "test2", "", "value", temp, 8);
 
-    value = StringToInt(temp) + 1;
-    Format(temp, sizeof(temp), "%d", value);
-    playerData.SetStringData("test", "test2", "123456", "value", temp);
+    noUniqueValue = StringToInt(temp) + 1;
+    Format(temp, sizeof(temp), "%d", noUniqueValue);
+    playerData.SetStringData("test", "test2", "", "value", temp);
 
-    PrintToChat(client, "value: %d", value);
+    PrintToChat(client, "test: %d, test1: %d", value, noUniqueValue);
 
     playerData.Rewind();
     playerData.ExportToString(export, 4096);

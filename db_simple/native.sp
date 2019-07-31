@@ -92,7 +92,7 @@ public int Native_DBSData_CreateTableData(Handle plugin, int numParams)
 {
 	char tableName[128];
 	GetNativeString(1, tableName, sizeof(tableName));
-	KeyValues kv = new KeyValues(tableName);
+	KeyValues kv = new KeyValues(tableName, "no unique", GetNativeCell(2) > 0 ? "1" : "0");
 
 	return view_as<int>(kv);
 }
@@ -236,6 +236,7 @@ public void DBSPlayerData_Load(Database db, DBResultSet results, const char[] er
 {
 	char temp[256], dbConfName[128], tableName[128], column[128], unique[128];
 	int client = preparingData.ClientIndex, firstPosId, count = 0;
+	bool noUnique;
 	preparingData.GetDBConfigName(dbConfName, sizeof(dbConfName));
 	preparingData.GetTableName(tableName, sizeof(tableName));
 	delete preparingData;
@@ -263,12 +264,14 @@ public void DBSPlayerData_Load(Database db, DBResultSet results, const char[] er
 			LoadedDBData.JumpToKey(dbConfName);
 			LoadedDBData.JumpToKey("table_data", true);
 			LoadedDBData.JumpToKey(tableName);
+
+			noUnique = LoadedDBData.GetNum("no unique", 0) > 0;
 			LoadedDBData.JumpToKey("columns", true);
 
 			LoadedPlayerData[client].Rewind();
 			LoadedPlayerData[client].JumpToKey(dbConfName, true);
 			LoadedPlayerData[client].JumpToKey(tableName, true);
-			LoadedPlayerData[client].JumpToKey(unique, true);
+			LoadedPlayerData[client].JumpToKey(noUnique ? TEMP_UNIQUE_ID : unique, true);
 
 			if(LoadedDBData.GotoFirstSubKey(false))
 			{
@@ -328,15 +331,34 @@ public int Native_DBSPlayerData_SetCurrentIndexSet(Handle plugin, int numParams)
 }
 */
 
+enum
+{
+	Insert_AuthId = 0,
+	Insert_Unique,
+	Insert_Column,
+
+	Insert_CountMax
+};
+
+enum
+{
+	Into_Insert,
+	Into_Values,
+	Into_KeyUpdates,
+
+	Into_CountMax
+};
+
 public int Native_DBSPlayerData_Update(Handle plugin, int numParams)
 {
 	// TODO: Transaction.
 	DBSPlayerData playerData = GetNativeCell(1);
 	Database db;
 
-	int count;
+	int count, columnPosId;
 	char queryStr[512], dbConfName[128], tableName[128], unique[128], column[128], authId[25];
 	char authIdColumn[128], uniqueColumn[128], data[128];
+	bool noUnique = false;
 
 	LoadedDBData.Rewind();
 	playerData.Rewind();
@@ -363,44 +385,148 @@ public int Native_DBSPlayerData_Update(Handle plugin, int numParams)
 			playerData.GetSectionName(tableName, sizeof(tableName));
 
 			LoadedDBData.JumpToKey(tableName, true);
+			noUnique = LoadedDBData.GetNum("no unique", 0) > 0;
+
 			LoadedDBData.JumpToKey("columns", true);
 
 			LoadedDBData.GotoFirstSubKey(false);
+			LoadedDBData.GetSectionSymbol(columnPosId);
+
 			playerData.GotoFirstSubKey();
 			do
 			{
 				count = 0;
 				playerData.GetSectionName(unique, sizeof(unique));
 
+				LoadedDBData.JumpToKeySymbol(columnPosId);
+
+				// FIXME: 칼럼이 그 이상 없거나 확인할 칼럼이 추가될 때 고장날 수 있음.
+				// PlayerData_STEAMID -> PlayerData_Unique -> default
+				LoadedDBData.GetSectionName(authIdColumn, sizeof(authIdColumn));
+				LoadedDBData.GotoNextKey(false);
+
+				if(!noUnique) {
+					LoadedDBData.GetSectionName(uniqueColumn, sizeof(uniqueColumn));
+					LoadedDBData.GotoNextKey(false);
+				}
+
 				do
 				{
-					switch(count)
+					LoadedDBData.GetSectionName(column, sizeof(column));
+					playerData.GetString(column, data, sizeof(data), "");
+
+					if(strlen(data) == 0) continue;
+
+					queryStr = "";
+					// TODO: 굳이 이렇게??
+					bool invalid = false;
+					for(int into = Into_Insert; into < Into_CountMax; into++)
 					{
-						case PlayerData_STEAMID:
+						switch(into)
 						{
-							LoadedDBData.GetSectionName(authIdColumn, sizeof(authIdColumn));
+							case Into_Insert:
+							{
+								Format(queryStr, sizeof(queryStr), "INSERT INTO `%s` (", tableName);
+							}
+							case Into_Values:
+							{
+								Format(queryStr, sizeof(queryStr), "%s VALUES (", queryStr);
+							}
+							case Into_KeyUpdates:
+							{
+								Format(queryStr, sizeof(queryStr), "%s ON DUPLICATE KEY UPDATE", queryStr);
+							}
 						}
-						case PlayerData_Unique:
+						for(int insert = Insert_AuthId; insert < Insert_CountMax; insert++)
 						{
-							LoadedDBData.GetSectionName(uniqueColumn, sizeof(uniqueColumn));
-						}
-						default:
-						{
-							LoadedDBData.GetSectionName(column, sizeof(column));
-							playerData.GetString(column, data, sizeof(data), "");
+							if(insert != 0 && !invalid)
+							{
+								Format(queryStr, sizeof(queryStr), "%s,", queryStr);
+							}
+							else
+							{
+								invalid = false;
+							}
 
-							if(strlen(data) == 0) continue;
+							switch(insert)
+							{
+								case Insert_AuthId:
+								{
+									switch(into)
+									{
+										case Into_Insert:
+										{
+											Format(queryStr, sizeof(queryStr), "%s`%s`", queryStr, authIdColumn);
+										}
+										case Into_Values:
+										{
+											Format(queryStr, sizeof(queryStr), "%s'%s'", queryStr, authId);
+										}
+										case Into_KeyUpdates:
+										{
+											Format(queryStr, sizeof(queryStr), "%s `%s` = '%s'", queryStr, authIdColumn, authId);
+										}
+									}
 
-							Format(queryStr, sizeof(queryStr),
-								"INSERT INTO `%s` (`%s`, `%s`, `%s`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `%s` = '%s',  `%s` = '%s', `%s` = '%s'",
-									tableName, authIdColumn, uniqueColumn, column,
-									authId, unique, data,
-									authIdColumn, authId, uniqueColumn, unique, column, data);
+								}
+								case Insert_Unique:
+								{
+									if(noUnique) {
+										invalid = true;
+										continue;
+									}
 
-							LogError("%s", queryStr);
-							transaction.AddQuery(queryStr);
+									switch(into)
+									{
+										case Into_Insert:
+										{
+											Format(queryStr, sizeof(queryStr), "%s`%s`", queryStr, uniqueColumn);
+										}
+										case Into_Values:
+										{
+											Format(queryStr, sizeof(queryStr), "%s'%s'", queryStr, unique);
+										}
+										case Into_KeyUpdates:
+										{
+											Format(queryStr, sizeof(queryStr), "%s `%s` = '%s'", queryStr, uniqueColumn, unique);
+										}
+									}
+								}
+								case Insert_Column:
+								{
+									switch(into)
+									{
+										case Into_Insert:
+										{
+											Format(queryStr, sizeof(queryStr), "%s`%s`", queryStr, column);
+										}
+										case Into_Values:
+										{
+											Format(queryStr, sizeof(queryStr), "%s'%s'", queryStr, data);
+										}
+										case Into_KeyUpdates:
+										{
+											Format(queryStr, sizeof(queryStr), "%s `%s` = '%s'", queryStr, column, data);
+										}
+									}
+								}
+							}
+
+							if(insert + 1 == Insert_CountMax && into != Into_KeyUpdates)
+								Format(queryStr, sizeof(queryStr), "%s)", queryStr);
 						}
 					}
+
+					/*
+					Format(queryStr, sizeof(queryStr),
+						"INSERT INTO `%s` (`%s`, `%s`, `%s`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `%s` = '%s',  `%s` = '%s', `%s` = '%s'",
+							tableName, authIdColumn, uniqueColumn, column,
+							authId, unique, data,
+							authIdColumn, authId, uniqueColumn, unique, column, data);
+					*/
+
+					LogError("%s", queryStr);
+					transaction.AddQuery(queryStr);
 
 					count++;
 				}
@@ -442,7 +568,12 @@ public int Native_DBSPlayerData_GetData(Handle plugin, int numParams)
 	playerData.Rewind();
 	playerData.JumpToKey(dbConfName, true);
 	playerData.JumpToKey(tableName, true);
-	playerData.JumpToKey(unique, true);
+
+	if(strlen(unique))
+		playerData.JumpToKey(unique, true);
+	else
+		playerData.JumpToKey(TEMP_UNIQUE_ID, true);
+
 
 	KvDataTypes dataType = LoadedDBData.GetTableDataType(dbConfName, tableName, column);
 	switch(dataType)
@@ -482,7 +613,11 @@ public int Native_DBSPlayerData_SetData(Handle plugin, int numParams)
 	playerData.Rewind();
 	playerData.JumpToKey(dbConfName, true);
 	playerData.JumpToKey(tableName, true);
-	playerData.JumpToKey(unique, true);
+
+	if(strlen(unique))
+		playerData.JumpToKey(unique, true);
+	else
+		playerData.JumpToKey(TEMP_UNIQUE_ID, true);
 
 	KvDataTypes dataType = LoadedDBData.GetTableDataType(dbConfName, tableName, column);
 	switch(dataType)

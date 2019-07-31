@@ -28,7 +28,7 @@ methodmap DBSData < KeyValues {
 		@param tableData: CreateTableData's return value
 		@param column: table's column name to add
 	*/
-	public static native KeyValues CreateTableData(const char[] tableName);
+	public static native KeyValues CreateTableData(const char[] tableName, bool noUnique = false);
 	public static native void PushTableData(KeyValues tableData, const char[] column, const KvDataTypes dataType);
 
 	public native void Add(const char[] dbConfName, KeyValues tableData);
@@ -76,9 +76,9 @@ methodmap DBSPlayerData < KeyValues {
 	*/
 	public native void Update();
 
-	public native any GetData(const char[] dbConfName, const char[] tableName, const char[] unique, const char[] column, char[] value = "", int buffer = 0);
-	public native void SetData(const char[] dbConfName, const char[] tableName, const char[] unique, const char[] column, any value);
-	public native void SetStringData(const char[] dbConfName, const char[] tableName, const char[] unique, const char[] column, char[] strValue);
+	public native any GetData(const char[] dbConfName, const char[] tableName, const char[] unique = "", const char[] column, char[] value = "", int buffer = 0);
+	public native void SetData(const char[] dbConfName, const char[] tableName, const char[] unique = "", const char[] column, any value);
+	public native void SetStringData(const char[] dbConfName, const char[] tableName, const char[] unique = "", const char[] column, char[] strValue);
 }
 
 
