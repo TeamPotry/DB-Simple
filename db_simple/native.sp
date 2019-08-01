@@ -195,15 +195,14 @@ public int Native_DBSPlayerData_Load(Handle plugin, int numParams)
 			if((db = view_as<Database>(LoadedDBData.GetNum("connection"))) != view_as<Database>(0))
 			{
 				LoadedDBData.GetSectionName(dbConfName, sizeof(dbConfName));
-				LoadedDBData.JumpToKey("table_data", true);
-				if(LoadedDBData.GotoFirstSubKey())
+				if(LoadedDBData.JumpToKey("table_data") && LoadedDBData.GotoFirstSubKey())
 				{
 					do
 					{
 						LoadedDBData.GetSectionName(tableName, sizeof(tableName));
+						// LogError("tableName = %s", tableName);
 
 						LoadedDBData.JumpToKey("columns", true);
-
 						LoadedDBData.GotoFirstSubKey(false);
 						LoadedDBData.GetSectionName(column, sizeof(column));
 						LoadedDBData.GoBack();
@@ -245,7 +244,6 @@ public void DBSPlayerData_Load(Database db, DBResultSet results, const char[] er
 		ThrowError("%s", error);
 
 	LoadedDBData.GetSectionSymbol(firstPosId);
-	LoadedDBData.Rewind();
 
 	if(results.RowCount > 0) {
 		for(int loop = 0; loop < results.RowCount; loop++)
@@ -257,16 +255,16 @@ public void DBSPlayerData_Load(Database db, DBResultSet results, const char[] er
 				}
 				break;
 			}
-
 			count = PlayerData_STEAMID;
 			results.FetchString(PlayerData_Unique, unique, sizeof(unique));
 
+			LoadedDBData.Rewind();
 			LoadedDBData.JumpToKey(dbConfName);
-			LoadedDBData.JumpToKey("table_data", true);
+			LoadedDBData.JumpToKey("table_data");
 			LoadedDBData.JumpToKey(tableName);
 
 			noUnique = LoadedDBData.GetNum("no unique", 0) > 0;
-			LoadedDBData.JumpToKey("columns", true);
+			LoadedDBData.JumpToKey("columns");
 
 			LoadedPlayerData[client].Rewind();
 			LoadedPlayerData[client].JumpToKey(dbConfName, true);
@@ -280,7 +278,7 @@ public void DBSPlayerData_Load(Database db, DBResultSet results, const char[] er
 					LoadedDBData.GetSectionName(column, sizeof(column));
 					// LoadedPlayerData[client].JumpToKey(column, true);
 
-					LogError("%s", column);
+					// LogError("%s", column);
 
 					results.FetchString(count++, temp, 256);
 					LoadedPlayerData[client].SetString(column, temp);
@@ -360,16 +358,16 @@ public int Native_DBSPlayerData_Update(Handle plugin, int numParams)
 	char authIdColumn[128], uniqueColumn[128], data[128];
 	bool noUnique = false;
 
-	LoadedDBData.Rewind();
 	playerData.Rewind();
-
 	playerData.GetString("auth_id", authId, 25);
 	if(!playerData.GotoFirstSubKey())
 		return 0;
 
 	do
 	{
+		LoadedDBData.Rewind();
 		playerData.GetSectionName(dbConfName, sizeof(dbConfName));
+
 		if(!LoadedDBData.JumpToKey(dbConfName)) {
 			LogError("There's no ''%s''!", dbConfName);
 			continue;
@@ -378,21 +376,22 @@ public int Native_DBSPlayerData_Update(Handle plugin, int numParams)
 		db = view_as<Database>(LoadedDBData.GetNum("connection"));
 
 		LoadedDBData.JumpToKey("table_data", true);
-		playerData.GotoFirstSubKey();
+
+		if(!playerData.GotoFirstSubKey())
+			continue;
 		do
 		{
 			Transaction transaction = new Transaction();
 			playerData.GetSectionName(tableName, sizeof(tableName));
 
-			LoadedDBData.JumpToKey(tableName, true);
+			LoadedDBData.JumpToKey(tableName);
 			noUnique = LoadedDBData.GetNum("no unique", 0) > 0;
 
 			LoadedDBData.JumpToKey("columns", true);
-
-			LoadedDBData.GotoFirstSubKey(false);
 			LoadedDBData.GetSectionSymbol(columnPosId);
+			if(!playerData.GotoFirstSubKey())
+				continue;
 
-			playerData.GotoFirstSubKey();
 			do
 			{
 				count = 0;
@@ -402,6 +401,9 @@ public int Native_DBSPlayerData_Update(Handle plugin, int numParams)
 
 				// FIXME: 칼럼이 그 이상 없거나 확인할 칼럼이 추가될 때 고장날 수 있음.
 				// PlayerData_STEAMID -> PlayerData_Unique -> default
+				if(LoadedDBData.GotoFirstSubKey(false))
+					continue;
+
 				LoadedDBData.GetSectionName(authIdColumn, sizeof(authIdColumn));
 				LoadedDBData.GotoNextKey(false);
 
