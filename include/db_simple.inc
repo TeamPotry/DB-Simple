@@ -81,6 +81,15 @@ methodmap DBSPlayerData < KeyValues {
 	public native void SetStringData(const char[] dbConfName, const char[] tableName, const char[] unique = "", const char[] column, char[] strValue);
 }
 
+/*
+    Called when server is precaching data.
+*/
+forward void DBS_OnLoadData(DBSData data);
+
+/*
+    Called when server is precaching player's data.
+*/
+forward void DBS_OnLoadPlayerData(DBSPlayerData playerData, int client);
 
 
 public SharedPlugin __pl_db_simple=
