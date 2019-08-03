@@ -70,6 +70,9 @@ void Native_Init()
     CreateNative("DBSPlayerData.GetData", Native_DBSPlayerData_GetData);
     CreateNative("DBSPlayerData.SetData", Native_DBSPlayerData_SetData);
     CreateNative("DBSPlayerData.SetStringData", Native_DBSPlayerData_SetData);
+	CreateNative("DBSData.GetDBConfNames", Native_DBSData_GetNames);
+	CreateNative("DBSData.GetTableNames", Native_DBSData_GetNames);
+	CreateNative("DBSData.GetColumnNames", Native_DBSData_GetNames);
 }
 
 public int Native_DBSData_Create(Handle plugin, int numParams)
@@ -172,6 +175,73 @@ public int Native_DBSData_Add(Handle plugin, int numParams)
 
 	data.JumpToKey(dbConfName, true);
 	data.Import(kv);
+}
+
+enum
+{
+	Name_DBConf = 1,
+	Name_Table,
+	Name_Column
+};
+
+public int Native_DBSData_GetNames(Handle plugin, int numParams)
+{
+	DBSData data = GetNativeCell(1);
+
+	char name[128], temp[128];
+	int posId;
+	data.GetSectionSymbol(posId);
+
+	ArrayList array = new ArrayList(128);
+
+	switch(numParams)
+	{
+		case Name_DBConf:
+		{
+			data.Rewind();
+			if(data.GotoFirstSubKey())
+			{
+				do
+				{
+					data.GetSectionName(name, sizeof(name));
+					array.PushString(name);
+				}
+				while(data.GotoNextKey());
+			}
+		}
+		case Name_Table:
+		{
+			data.Rewind();
+			if((GetNativeString(2, temp, sizeof(temp) == SP_ERROR_NONE) && data.JumpToKey(temp))
+			&& data.JumpToKey("table_data", true) && data.GotoFirstSubKey())
+			{
+				do
+				{
+					data.GetSectionName(name, sizeof(name));
+					array.PushString(name);
+				}
+				while(data.GotoNextKey());
+			}
+		}
+		case Name_Column:
+		{
+			data.Rewind();
+			if((GetNativeString(2, temp, sizeof(temp) == SP_ERROR_NONE) && data.JumpToKey(temp))
+			&& data.JumpToKey("table_data", true) && (GetNativeString(3, temp, sizeof(temp) == SP_ERROR_NONE) && data.JumpToKey(temp))
+			&& data.JumpToKey("columns", true) && data.GotoFirstSubKey(false))
+			{
+				do
+				{
+					data.GetSectionName(name, sizeof(name));
+					array.PushString(name);
+				}
+				while(data.GotoNextKey(false));
+			}
+		}
+	}
+
+	data.JumpToKeySymbol(posId);
+	return view_as<int>(array);
 }
 
 public int Native_DBSPlayerData_Load(Handle plugin, int numParams)

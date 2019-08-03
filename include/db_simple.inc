@@ -33,6 +33,10 @@ methodmap DBSData < KeyValues {
 
 	public native void Add(const char[] dbConfName, KeyValues tableData);
 
+    public native ArrayList GetDBConfNames();
+    public native ArrayList GetTableNames(const char[] dbConfName);
+    public native ArrayList GetColumnNames(const char[] dbConfName, const char[] tableName);
+
 	// ...: column names
 	// public static native void PushTableIndexSet(KeyValues tableData, const char[] indexSet, int indexType, any ...);
 
