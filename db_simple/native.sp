@@ -54,25 +54,25 @@ methodmap DBSPlayerdata_Preparing < ArrayList {
 
 void Native_Init()
 {
-    CreateNative("DBSData.Create", Native_DBSData_Create);
-    CreateNative("DBSData.Get", Native_DBSData_Get);
-    CreateNative("DBSData.CreateTableData", Native_DBSData_CreateTableData);
-    CreateNative("DBSData.PushTableData", Native_DBSData_PushTableData);
-    // CreateNative("DBSData.PushTableIndexSet", Native_DBSData_PushTableIndexSet);
-    CreateNative("DBSData.GetTableDataType", Native_DBSData_GetTableDataType);
-    CreateNative("DBSData.Add", Native_DBSData_Add);
-
-    CreateNative("DBSPlayerData.Load", Native_DBSPlayerData_Load);
-    CreateNative("DBSPlayerData.GetClientData", Native_DBSPlayerData_GetClientData);
-    // CreateNative("DBSPlayerData.GetCurrentIndexSet", Native_DBSPlayerData_GetCurrentIndexSet);
-    // CreateNative("DBSPlayerData.SetCurrentIndexSet", Native_DBSPlayerData_SetCurrentIndexSet);
-    CreateNative("DBSPlayerData.Update", Native_DBSPlayerData_Update);
-    CreateNative("DBSPlayerData.GetData", Native_DBSPlayerData_GetData);
-    CreateNative("DBSPlayerData.SetData", Native_DBSPlayerData_SetData);
-    CreateNative("DBSPlayerData.SetStringData", Native_DBSPlayerData_SetData);
+	CreateNative("DBSData.Create", Native_DBSData_Create);
+	CreateNative("DBSData.Get", Native_DBSData_Get);
+	CreateNative("DBSData.CreateTableData", Native_DBSData_CreateTableData);
+	CreateNative("DBSData.PushTableData", Native_DBSData_PushTableData);
+	// CreateNative("DBSData.PushTableIndexSet", Native_DBSData_PushTableIndexSet);
+	CreateNative("DBSData.GetTableDataType", Native_DBSData_GetTableDataType);
+	CreateNative("DBSData.Add", Native_DBSData_Add);
 	CreateNative("DBSData.GetDBConfNames", Native_DBSData_GetNames);
 	CreateNative("DBSData.GetTableNames", Native_DBSData_GetNames);
 	CreateNative("DBSData.GetColumnNames", Native_DBSData_GetNames);
+
+	CreateNative("DBSPlayerData.Load", Native_DBSPlayerData_Load);
+	CreateNative("DBSPlayerData.GetClientData", Native_DBSPlayerData_GetClientData);
+	// CreateNative("DBSPlayerData.GetCurrentIndexSet", Native_DBSPlayerData_GetCurrentIndexSet);
+	// CreateNative("DBSPlayerData.SetCurrentIndexSet", Native_DBSPlayerData_SetCurrentIndexSet);
+	CreateNative("DBSPlayerData.Update", Native_DBSPlayerData_Update);
+	CreateNative("DBSPlayerData.GetData", Native_DBSPlayerData_GetData);
+	CreateNative("DBSPlayerData.SetData", Native_DBSPlayerData_SetData);
+	CreateNative("DBSPlayerData.SetStringData", Native_DBSPlayerData_SetData);
 }
 
 public int Native_DBSData_Create(Handle plugin, int numParams)
