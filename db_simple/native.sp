@@ -188,9 +188,10 @@ public int Native_DBSData_GetNames(Handle plugin, int numParams)
 {
 	DBSData data = GetNativeCell(1);
 
-	char name[128], temp[128];
+	char name[128], dbConfName[128], tableName[128];
 	int posId;
 	data.GetSectionSymbol(posId);
+	data.Rewind();
 
 	ArrayList array = new ArrayList(128);
 
@@ -198,7 +199,6 @@ public int Native_DBSData_GetNames(Handle plugin, int numParams)
 	{
 		case Name_DBConf:
 		{
-			data.Rewind();
 			if(data.GotoFirstSubKey())
 			{
 				do
@@ -211,9 +211,9 @@ public int Native_DBSData_GetNames(Handle plugin, int numParams)
 		}
 		case Name_Table:
 		{
-			data.Rewind();
-			if((GetNativeString(2, temp, sizeof(temp) == SP_ERROR_NONE) && data.JumpToKey(temp))
-			&& data.JumpToKey("table_data", true) && data.GotoFirstSubKey())
+			GetNativeString(2, dbConfName, sizeof(dbConfName));
+			if(data.JumpToKey(dbConfName) && data.JumpToKey("table_data", true)
+			&& data.GotoFirstSubKey())
 			{
 				do
 				{
@@ -225,10 +225,10 @@ public int Native_DBSData_GetNames(Handle plugin, int numParams)
 		}
 		case Name_Column:
 		{
-			data.Rewind();
-			if((GetNativeString(2, temp, sizeof(temp) == SP_ERROR_NONE) && data.JumpToKey(temp))
-			&& data.JumpToKey("table_data", true) && (GetNativeString(3, temp, sizeof(temp) == SP_ERROR_NONE) && data.JumpToKey(temp))
-			&& data.JumpToKey("columns", true) && data.GotoFirstSubKey(false))
+			GetNativeString(2, dbConfName, sizeof(dbConfName));
+			GetNativeString(3, tableName, sizeof(tableName));
+			if(data.JumpToKey(dbConfName) && data.JumpToKey("table_data", true)
+			&& data.JumpToKey(tableName) && data.JumpToKey("columns", true) && data.GotoFirstSubKey(false))
 			{
 				do
 				{
