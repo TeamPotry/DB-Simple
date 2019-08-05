@@ -464,200 +464,166 @@ public int Native_DBSPlayerData_Update(Handle plugin, int numParams)
 	DBSPlayerData playerData = GetNativeCell(1);
 	Database db;
 
-	int count, columnPosId;
 	char queryStr[512], dbConfName[128], tableName[128], unique[128], column[128], authId[25];
 	char authIdColumn[128], uniqueColumn[128], data[128];
 	bool noUnique = false;
 
 	playerData.Rewind();
 	playerData.GetString("auth_id", authId, 25);
-	if(!playerData.GotoFirstSubKey())
-		return 0;
+	ArrayList dbConfNames = LoadedDBData.GetDBConfNames(), tableNames, uniqueNames, columnNames;
 
-	do
+	for(int dbConf = 0; dbConf < dbConfNames.Length; dbConf++)
 	{
-		LoadedDBData.Rewind();
-		playerData.GetSectionName(dbConfName, sizeof(dbConfName));
+		dbConfNames.GetString(dbConf, dbConfName, sizeof(dbConfName));
 
-		if(!LoadedDBData.JumpToKey(dbConfName)) {
-			LogError("There's no ''%s''!", dbConfName);
-			continue;
-		}
-
-		db = view_as<Database>(LoadedDBData.GetNum("connection"));
-
-		LoadedDBData.JumpToKey("table_data", true);
-
-		if(!playerData.GotoFirstSubKey())
-			continue;
-		do
+		db = LoadedDBData.GetConnection(dbConfName);
+		Transaction transaction = new Transaction();
+		tableNames = LoadedDBData.GetTableNames(dbConfName);
+		for(int table = 0; table < tableNames.Length; table++)
 		{
-			Transaction transaction = new Transaction();
-			playerData.GetSectionName(tableName, sizeof(tableName));
+			tableNames.GetString(table, tableName, sizeof(tableName));
 
-			LoadedDBData.JumpToKey(tableName);
-			noUnique = LoadedDBData.GetNum("no unique", 0) > 0;
+			noUnique = LoadedDBData.IsTableNoUnique(dbConfName, tableName);
+			columnNames = LoadedDBData.GetColumnNames(dbConfName, tableName);
+			uniqueNames = playerData.GetUniqueNames(dbConfName, tableName);
 
-			LoadedDBData.JumpToKey("columns", true);
-			LoadedDBData.GetSectionSymbol(columnPosId);
-			if(!playerData.GotoFirstSubKey())
-				continue;
-
-			do
+			for(int uniqueIndex = 0; uniqueIndex < uniqueNames.Length; uniqueIndex++)
 			{
-				count = 0;
-				playerData.GetSectionName(unique, sizeof(unique));
+				uniqueNames.GetString(uniqueIndex, unique, sizeof(unique));
+				// LogError("uniqueNames = %d, %s", uniqueNames.Length, unique);
 
-				LoadedDBData.JumpToKeySymbol(columnPosId);
+				playerData.Rewind();
+				playerData.JumpToKey(dbConfName, true);
+				playerData.JumpToKey(tableName, true);
+				playerData.JumpToKey(unique, true);
 
-				// FIXME: 칼럼이 그 이상 없거나 확인할 칼럼이 추가될 때 고장날 수 있음.
-				// PlayerData_STEAMID -> PlayerData_Unique -> default
-				if(LoadedDBData.GotoFirstSubKey(false))
-					continue;
-
-				LoadedDBData.GetSectionName(authIdColumn, sizeof(authIdColumn));
-				LoadedDBData.GotoNextKey(false);
-
-				if(!noUnique) {
-					LoadedDBData.GetSectionName(uniqueColumn, sizeof(uniqueColumn));
-					LoadedDBData.GotoNextKey(false);
-				}
-
-				do
+				for(int columnIndex = 0; columnIndex < columnNames.Length; columnIndex++)
 				{
-					LoadedDBData.GetSectionName(column, sizeof(column));
+					columnNames.GetString(columnIndex, column, sizeof(column));
 					playerData.GetString(column, data, sizeof(data), "");
 
+					LogError("%s > %s > %s > %s > %s", dbConfName, tableName, !noUnique ? unique : "no unique!", column, data);
+
 					if(strlen(data) == 0) continue;
-
-					queryStr = "";
-					// TODO: 굳이 이렇게??
-					bool invalid = false;
-					for(int into = Into_Insert; into < Into_CountMax; into++)
+					else if(columnIndex == Insert_AuthId)
+						columnNames.GetString(columnIndex, authIdColumn, sizeof(authIdColumn));
+					else if(columnIndex == Insert_Unique && !noUnique)
+						columnNames.GetString(columnIndex, uniqueColumn, sizeof(uniqueColumn));
+					else
 					{
-						switch(into)
+						queryStr = "";
+						// TODO: 굳이 이렇게??
+						bool invalid = false;
+						for(int into = Into_Insert; into < Into_CountMax; into++)
 						{
-							case Into_Insert:
+							switch(into)
 							{
-								Format(queryStr, sizeof(queryStr), "INSERT INTO `%s` (", tableName);
-							}
-							case Into_Values:
-							{
-								Format(queryStr, sizeof(queryStr), "%s VALUES (", queryStr);
-							}
-							case Into_KeyUpdates:
-							{
-								Format(queryStr, sizeof(queryStr), "%s ON DUPLICATE KEY UPDATE", queryStr);
-							}
-						}
-						for(int insert = Insert_AuthId; insert < Insert_CountMax; insert++)
-						{
-							if(insert != 0 && !invalid)
-							{
-								Format(queryStr, sizeof(queryStr), "%s,", queryStr);
-							}
-							else
-							{
-								invalid = false;
-							}
-
-							switch(insert)
-							{
-								case Insert_AuthId:
+								case Into_Insert:
 								{
-									switch(into)
-									{
-										case Into_Insert:
-										{
-											Format(queryStr, sizeof(queryStr), "%s`%s`", queryStr, authIdColumn);
-										}
-										case Into_Values:
-										{
-											Format(queryStr, sizeof(queryStr), "%s'%s'", queryStr, authId);
-										}
-										case Into_KeyUpdates:
-										{
-											Format(queryStr, sizeof(queryStr), "%s `%s` = '%s'", queryStr, authIdColumn, authId);
-										}
-									}
-
+									Format(queryStr, sizeof(queryStr), "INSERT INTO `%s` (", tableName);
 								}
-								case Insert_Unique:
+								case Into_Values:
 								{
-									if(noUnique) {
-										invalid = true;
-										continue;
-									}
-
-									switch(into)
-									{
-										case Into_Insert:
-										{
-											Format(queryStr, sizeof(queryStr), "%s`%s`", queryStr, uniqueColumn);
-										}
-										case Into_Values:
-										{
-											Format(queryStr, sizeof(queryStr), "%s'%s'", queryStr, unique);
-										}
-										case Into_KeyUpdates:
-										{
-											Format(queryStr, sizeof(queryStr), "%s `%s` = '%s'", queryStr, uniqueColumn, unique);
-										}
-									}
+									Format(queryStr, sizeof(queryStr), "%s VALUES (", queryStr);
 								}
-								case Insert_Column:
+								case Into_KeyUpdates:
 								{
-									switch(into)
-									{
-										case Into_Insert:
-										{
-											Format(queryStr, sizeof(queryStr), "%s`%s`", queryStr, column);
-										}
-										case Into_Values:
-										{
-											Format(queryStr, sizeof(queryStr), "%s'%s'", queryStr, data);
-										}
-										case Into_KeyUpdates:
-										{
-											Format(queryStr, sizeof(queryStr), "%s `%s` = '%s'", queryStr, column, data);
-										}
-									}
+									Format(queryStr, sizeof(queryStr), "%s ON DUPLICATE KEY UPDATE", queryStr);
 								}
 							}
+							for(int insert = Insert_AuthId; insert < Insert_CountMax; insert++)
+							{
+								if(insert != 0 && !invalid)
+								{
+									Format(queryStr, sizeof(queryStr), "%s,", queryStr);
+								}
+								else
+								{
+									invalid = false;
+								}
 
-							if(insert + 1 == Insert_CountMax && into != Into_KeyUpdates)
-								Format(queryStr, sizeof(queryStr), "%s)", queryStr);
+								switch(insert)
+								{
+									case Insert_AuthId:
+									{
+										switch(into)
+										{
+											case Into_Insert:
+											{
+												Format(queryStr, sizeof(queryStr), "%s`%s`", queryStr, authIdColumn);
+											}
+											case Into_Values:
+											{
+												Format(queryStr, sizeof(queryStr), "%s'%s'", queryStr, authId);
+											}
+											case Into_KeyUpdates:
+											{
+												Format(queryStr, sizeof(queryStr), "%s `%s` = '%s'", queryStr, authIdColumn, authId);
+											}
+										}
+
+									}
+									case Insert_Unique:
+									{
+										if(noUnique) {
+											invalid = true;
+											continue;
+										}
+
+										switch(into)
+										{
+											case Into_Insert:
+											{
+												Format(queryStr, sizeof(queryStr), "%s`%s`", queryStr, uniqueColumn);
+											}
+											case Into_Values:
+											{
+												Format(queryStr, sizeof(queryStr), "%s'%s'", queryStr, unique);
+											}
+											case Into_KeyUpdates:
+											{
+												Format(queryStr, sizeof(queryStr), "%s `%s` = '%s'", queryStr, uniqueColumn, unique);
+											}
+										}
+									}
+									case Insert_Column:
+									{
+										switch(into)
+										{
+											case Into_Insert:
+											{
+												Format(queryStr, sizeof(queryStr), "%s`%s`", queryStr, column);
+											}
+											case Into_Values:
+											{
+												Format(queryStr, sizeof(queryStr), "%s'%s'", queryStr, data);
+											}
+											case Into_KeyUpdates:
+											{
+												Format(queryStr, sizeof(queryStr), "%s `%s` = '%s'", queryStr, column, data);
+											}
+										}
+									}
+								}
+
+								if(insert + 1 == Insert_CountMax && into != Into_KeyUpdates)
+									Format(queryStr, sizeof(queryStr), "%s)", queryStr);
+							}
 						}
 					}
-
-					/*
-					Format(queryStr, sizeof(queryStr),
-						"INSERT INTO `%s` (`%s`, `%s`, `%s`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `%s` = '%s',  `%s` = '%s', `%s` = '%s'",
-							tableName, authIdColumn, uniqueColumn, column,
-							authId, unique, data,
-							authIdColumn, authId, uniqueColumn, unique, column, data);
-					*/
-
 					LogError("%s", queryStr);
 					transaction.AddQuery(queryStr);
-
-					count++;
 				}
-				while(LoadedDBData.GotoNextKey(false));
+				playerData.GoBack();
 			}
-			while(playerData.GotoNextKey());
-
-			playerData.GoBack();
-			LoadedDBData.GoBack();
-			LoadedDBData.GoBack();
-			LoadedDBData.GoBack();
-			db.Execute(transaction, _, OnTransactionError);
+			delete uniqueNames;
+			delete columnNames;
 		}
-		while(playerData.GotoNextKey());
 
-		playerData.GoBack();
+		delete tableNames;
+		db.Execute(transaction, _, OnTransactionError);
 	}
-	while(playerData.GotoNextKey());
+	delete dbConfNames;
 
 	return 0;
 }
@@ -755,4 +721,31 @@ public int Native_DBSPlayerData_SetData(Handle plugin, int numParams)
 			ThrowError("dataType is invalid! This should set value that we supported. (%s > %s > column = ''%s'')", dbConfName, tableName, column);
 		}
 	}
+}
+
+public int Native_DBSPlayerData_GetUniqueNames(Handle plugin, int numParams)
+{
+	DBSPlayerData playerData = GetNativeCell(1);
+
+	char dbConfName[128], tableName[128], name[128];
+	int posId;
+	ArrayList array = new ArrayList(128);
+
+	playerData.GetSectionSymbol(posId);
+	playerData.Rewind();
+
+	GetNativeString(2, dbConfName, sizeof(dbConfName));
+	GetNativeString(3, tableName, sizeof(tableName));
+	if(playerData.JumpToKey(dbConfName) && playerData.JumpToKey(tableName) && playerData.GotoFirstSubKey())
+	{
+		do
+		{
+			playerData.GetSectionName(name, sizeof(name));
+			array.PushString(name);
+		}
+		while(playerData.GotoNextKey());
+	}
+
+	playerData.JumpToKeySymbol(posId);
+	return view_as<int>(array);
 }
