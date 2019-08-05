@@ -64,6 +64,8 @@ void Native_Init()
 	CreateNative("DBSData.GetDBConfNames", Native_DBSData_GetNames);
 	CreateNative("DBSData.GetTableNames", Native_DBSData_GetNames);
 	CreateNative("DBSData.GetColumnNames", Native_DBSData_GetNames);
+	CreateNative("DBSData.GetConnection", Native_DBSData_GetConnection);
+	CreateNative("DBSData.IsTableNoUnique", Native_DBSData_IsTableNoUnique);
 
 	CreateNative("DBSPlayerData.Load", Native_DBSPlayerData_Load);
 	CreateNative("DBSPlayerData.GetClientData", Native_DBSPlayerData_GetClientData);
@@ -242,6 +244,44 @@ public int Native_DBSData_GetNames(Handle plugin, int numParams)
 
 	data.JumpToKeySymbol(posId);
 	return view_as<int>(array);
+}
+
+public int Native_DBSData_GetConnection(Handle plugin, int numParams)
+{
+	DBSData data = GetNativeCell(1);
+
+	char dbConfName[128];
+	int posId, result = 0;
+	data.GetSectionSymbol(posId);
+	data.Rewind();
+
+	GetNativeString(2, dbConfName, sizeof(dbConfName));
+	if(data.JumpToKey(dbConfName))
+		result = data.GetNum("connection", 0);
+
+	data.JumpToKeySymbol(posId);
+	return result;
+}
+
+public int Native_DBSData_IsTableNoUnique(Handle plugin, int numParams)
+{
+	DBSData data = GetNativeCell(1);
+
+	char dbConfName[128], tableName[128];
+	int posId, result;
+	data.GetSectionSymbol(posId);
+	data.Rewind();
+
+	GetNativeString(2, dbConfName, sizeof(dbConfName));
+	GetNativeString(3, tableName, sizeof(tableName));
+
+	data.JumpToKey(dbConfName, true);
+	data.JumpToKey("table_data", true);
+	data.JumpToKey(tableName, true);
+	result = data.GetNum("no unique", 0);
+
+	data.JumpToKeySymbol(posId);
+	return result > 0;
 }
 
 public int Native_DBSPlayerData_Load(Handle plugin, int numParams)

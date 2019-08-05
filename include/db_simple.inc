@@ -37,6 +37,9 @@ methodmap DBSData < KeyValues {
     public native ArrayList GetTableNames(const char[] dbConfName);
     public native ArrayList GetColumnNames(const char[] dbConfName, const char[] tableName);
 
+    public native Database GetConnection(const char[] dbConfName);
+    public native bool IsTableNoUnique(const char[] dbConfName, const char[] tableName);
+
 	// ...: column names
 	// public static native void PushTableIndexSet(KeyValues tableData, const char[] indexSet, int indexType, any ...);
 
