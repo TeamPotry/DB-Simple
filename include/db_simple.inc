@@ -86,6 +86,8 @@ methodmap DBSPlayerData < KeyValues {
 	public native any GetData(const char[] dbConfName, const char[] tableName, const char[] unique = "", const char[] column, char[] value = "", int buffer = 0);
 	public native void SetData(const char[] dbConfName, const char[] tableName, const char[] unique = "", const char[] column, any value);
 	public native void SetStringData(const char[] dbConfName, const char[] tableName, const char[] unique = "", const char[] column, char[] strValue);
+
+    public native ArrayList GetUniqueNames(const char[] dbConfName, const char[] tableName);
 }
 
 /*

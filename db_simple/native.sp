@@ -75,6 +75,7 @@ void Native_Init()
 	CreateNative("DBSPlayerData.GetData", Native_DBSPlayerData_GetData);
 	CreateNative("DBSPlayerData.SetData", Native_DBSPlayerData_SetData);
 	CreateNative("DBSPlayerData.SetStringData", Native_DBSPlayerData_SetData);
+	CreateNative("DBSPlayerData.GetUniqueNames", Native_DBSPlayerData_GetUniqueNames);
 }
 
 public int Native_DBSData_Create(Handle plugin, int numParams)
