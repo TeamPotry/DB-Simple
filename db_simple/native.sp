@@ -504,11 +504,13 @@ public int Native_DBSPlayerData_Update(Handle plugin, int numParams)
 
 					LogError("%s > %s > %s > %s > %s", dbConfName, tableName, !noUnique ? unique : "no unique!", column, data);
 
-					if(strlen(data) == 0) continue;
-					else if(columnIndex == Insert_AuthId)
-						columnNames.GetString(columnIndex, authIdColumn, sizeof(authIdColumn));
+					if(columnIndex == Insert_AuthId)
+						strcopy(authIdColumn, sizeof(authIdColumn), column);
 					else if(columnIndex == Insert_Unique && !noUnique)
-						columnNames.GetString(columnIndex, uniqueColumn, sizeof(uniqueColumn));
+						strcopy(uniqueColumn, sizeof(uniqueColumn), column);
+
+					if(strlen(data) == 0) continue;
+
 					else
 					{
 						queryStr = "";
