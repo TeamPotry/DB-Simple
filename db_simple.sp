@@ -56,7 +56,7 @@ public void OnClientAuthorized(int client, const char[] auth)
 	LoadedPlayerData[client] = DBSPlayerData.Load(client);
 }
 
-public void OnClientDisconnect(int client)
+public void OnClientDisconnect_Post(int client)
 {
 	if(!IsFakeClient(client))
 		LoadedPlayerData[client].Update();
