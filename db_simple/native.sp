@@ -293,6 +293,8 @@ public int Native_DBSPlayerData_Load(Handle plugin, int numParams)
 	GetClientAuthId(client, AuthId_SteamID64, authId, 25);
 	DBSPlayerData playerData = view_as<DBSPlayerData>(new KeyValues("DB_PlayerData", "auth_id", authId));
 
+	if(IsFakeClient(client))	return view_as<int>(playerData);
+
 	Call_StartForward(OnPlayerLoadData);
 	Call_PushCell(LoadedPlayerData[client]);
 	Call_PushCell(client);
