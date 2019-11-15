@@ -506,12 +506,17 @@ public int Native_DBSPlayerData_Update(Handle plugin, int numParams)
 
 					LogError("%s > %s > %s > %s > %s", dbConfName, tableName, !noUnique ? unique : "no unique!", column, data);
 
-					if(columnIndex == Insert_AuthId)
+					if(columnIndex == Insert_AuthId) {
 						strcopy(authIdColumn, sizeof(authIdColumn), column);
-					else if(columnIndex == Insert_Unique && !noUnique)
+						continue;
+					}
+					else if(columnIndex == Insert_Unique && !noUnique) {
 						strcopy(uniqueColumn, sizeof(uniqueColumn), column);
-
-					if(strlen(data) == 0) continue;
+						continue;
+					}
+					else if(strlen(data) == 0) {
+						continue;
+					}
 
 					else
 					{
