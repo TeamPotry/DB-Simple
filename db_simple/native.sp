@@ -504,7 +504,7 @@ public int Native_DBSPlayerData_Update(Handle plugin, int numParams)
 					columnNames.GetString(columnIndex, column, sizeof(column));
 					playerData.GetString(column, data, sizeof(data), "");
 
-					LogError("%s > %s > %s > %s > %s", dbConfName, tableName, !noUnique ? unique : "no unique!", column, data);
+					// LogError("%s > %s > %s > %s > %s", dbConfName, tableName, !noUnique ? unique : "no unique!", column, data);
 
 					if(columnIndex == Insert_AuthId) {
 						strcopy(authIdColumn, sizeof(authIdColumn), column);
