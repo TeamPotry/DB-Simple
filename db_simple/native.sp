@@ -322,7 +322,7 @@ public int Native_DBSPlayerData_Load(Handle plugin, int numParams)
 						LoadedDBData.GoBack();
 
 						Format(queryStr, sizeof(queryStr), "SELECT * FROM `%s` WHERE `%s` = '%s'", tableName, column, authId);
-						LogError("%s", queryStr);
+						// LogError("%s", queryStr);
 						db.Query(DBSPlayerData_Load, queryStr, DBSPlayerdata_Preparing.Preparing(client, dbConfName, tableName));
 					}
 					while(LoadedDBData.GotoNextKey());
@@ -620,7 +620,7 @@ public int Native_DBSPlayerData_Update(Handle plugin, int numParams)
 							}
 						}
 					}
-					LogError("%s", queryStr);
+					// LogError("%s", queryStr);
 					transaction.AddQuery(queryStr);
 				}
 				playerData.GoBack();
