@@ -58,7 +58,7 @@ public void OnClientAuthorized(int client, const char[] auth)
 
 public void OnClientDisconnect(int client)
 {
-	if(!IsFakeClient(client))
+	if(!IsFakeClient(client) && LoadedPlayerData[client] != null)
 		LoadedPlayerData[client].Update();
 
 	delete LoadedPlayerData[client];
