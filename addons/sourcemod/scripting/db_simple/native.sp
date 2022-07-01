@@ -113,6 +113,8 @@ public int Native_DBSData_PushTableData(Handle plugin, int numParams)
 	tableData.Rewind();
 	tableData.JumpToKey("columns", true);
 	tableData.SetNum(column, GetNativeCell(3));
+	
+	return 0;
 }
 
 /*
@@ -178,6 +180,8 @@ public int Native_DBSData_Add(Handle plugin, int numParams)
 
 	data.JumpToKey(dbConfName, true);
 	data.Import(kv);
+
+	return 0
 }
 
 enum
@@ -730,6 +734,8 @@ public int Native_DBSPlayerData_SetData(Handle plugin, int numParams)
 			ThrowError("dataType is invalid! This should set value that we supported. (%s > %s > column = ''%s'')", dbConfName, tableName, column);
 		}
 	}
+
+	return 0;
 }
 
 public int Native_DBSPlayerData_GetUniqueNames(Handle plugin, int numParams)

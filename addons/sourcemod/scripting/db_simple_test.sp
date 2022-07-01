@@ -82,4 +82,6 @@ public Action DBSTest_Cmd(int client, int args)
     dbsMain.Rewind();
     dbsMain.ExportToString(export, 4096);
     LogMessage("%s", export);
+
+	return Plugin_Continue;
 }
