@@ -1,0 +1,39 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sm-version: [ '1.10', "1.11" ]
+
+    name: SM version ${{ matrix.sm-version }}
+
+    steps:
+        # leave this at first. This will reset all of the files.
+      - name: Setup Source
+        uses: actions/checkout@master
+
+      - name: Setup SourceMod
+        run: |
+          wget --input-file=http://sourcemod.net/smdrop/${{ matrix.sm-version }}/sourcemod-latest-linux
+          tar -xzf $(cat sourcemod-latest-linux)
+
+      - name: Setup Include
+        working-directory: addons/sourcemod/scripting
+        run: echo running Setup Include, but we have nothing to do for now.
+
+      - name: Compile
+        working-directory: addons/sourcemod/scripting
+        run: |
+         chmod +x spcomp
+         mkdir compiled
+         ./compile.sh db_simple.sp db_simple_test.sp
+
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: Plugins
+          path: addons/sourcemod/scripting/compiled
