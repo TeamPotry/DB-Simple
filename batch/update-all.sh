@@ -6,7 +6,7 @@ cd /
 
 # delete stuff that already downloaded.
 sudo rm -rf ./sourcemod_lib ./sourcemod-latest-linux
-sudo mkdir ./sourcemod_lib && cd ./sourcemod_lid
+sudo mkdir ./sourcemod_lib && cd ./sourcemod_lib
 # download SourceMod
 sudo wget --input-file=http://sourcemod.net/smdrop/1.10/sourcemod-latest-linux
 sudo tar -xzf $(cat sourcemod-latest-linux)
