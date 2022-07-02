@@ -181,7 +181,7 @@ public int Native_DBSData_Add(Handle plugin, int numParams)
 	data.JumpToKey(dbConfName, true);
 	data.Import(kv);
 
-	return 0
+	return 0;
 }
 
 enum
