@@ -39,12 +39,12 @@ public void DBS_OnLoadData(DBSData data)
 
 	for(int loop = 0; loop < sizeof(g_strTestColumn); loop++)
 	{
-		DBSData.PushTableData(tabledata, g_strTestColumn[loop], KvData_String);
+		DBSData.PushTableData(tabledata, g_strTestColumn[loop], DBSData_String);
 	}
 
 	for(int loop = 0; loop < sizeof(g_strNoUniqueTestColumn); loop++)
 	{
-		DBSData.PushTableData(tableTestData, g_strNoUniqueTestColumn[loop], KvData_String);
+		DBSData.PushTableData(tableTestData, g_strNoUniqueTestColumn[loop], DBSData_String);
 	}
 
 	data.Add("test", tabledata);
