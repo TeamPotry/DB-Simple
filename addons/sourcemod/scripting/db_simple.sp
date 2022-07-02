@@ -2,6 +2,7 @@
 #include <db_simple>
 
 #include "db_simple/global_var.sp"
+#include "db_simple/transaction.sp"
 #include "db_simple/native.sp"
 
 #define PLUGIN_VERSION "20190729"

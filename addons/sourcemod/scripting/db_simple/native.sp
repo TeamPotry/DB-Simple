@@ -1,57 +1,3 @@
-enum
-{
-	Load_ClientIndex = 0,
-	Load_DBConfigName,
-	Load_TableName,
-
-	Load_Max
-};
-
-methodmap DBSPlayerdata_Preparing < ArrayList {
-	public static DBSPlayerdata_Preparing Preparing(const int client, const char[] dbConfName, const char[] tablename)
-	{
-		DBSPlayerdata_Preparing array = view_as<DBSPlayerdata_Preparing>(new ArrayList(128, Load_Max));
-
-		array.Set(Load_ClientIndex, client);
-		array.SetString(Load_DBConfigName, dbConfName);
-		array.SetString(Load_TableName, tablename);
-
-		return array;
-	}
-
-	property int ClientIndex {
-        public get()
-        {
-            return this.Get(Load_ClientIndex);
-        }
-
-        public set(int client)
-        {
-            this.Set(Load_ClientIndex, client);
-        }
-    }
-
-    public void GetDBConfigName(char[] dbConfName, int buffer)
-    {
-    	this.GetString(Load_DBConfigName, dbConfName, buffer);
-    }
-
-    public void SetDBConfigName(const char[] dbConfName)
-    {
-    	this.SetString(Load_DBConfigName, dbConfName);
-    }
-
-    public void GetTableName(char[] tablename, int buffer)
-    {
-    	this.GetString(Load_TableName, tablename, buffer);
-    }
-
-    public void SetTableName(const char[] tablename)
-    {
-    	this.SetString(Load_TableName, tablename);
-    }
-}
-
 void Native_Init()
 {
 	CreateNative("DBSData.Create", Native_DBSData_Create);
@@ -158,21 +104,27 @@ public int Native_DBSData_GetTableDataType(Handle plugin, int numParams)
 public int Native_DBSData_Add(Handle plugin, int numParams)
 {
 	DBSData data = GetNativeCell(1);
+	Database db = null;
 
 	char dbConfName[128], error[256];
 	GetNativeString(2, dbConfName, sizeof(dbConfName));
 
-	Database db = SQL_Connect(dbConfName, false, error, sizeof(error));
-	if(db == null) {
-		ThrowError("[DBS] Error: %s", error);
+	// Is this DB already connected?
+	data.Rewind();
+	data.JumpToKey(dbConfName, true);
+
+	db = view_as<Database>(data.GetNum("connection", 0));
+	if(db == null)
+	{
+		db = SQL_Connect(dbConfName, false, error, sizeof(error));
+		if(db == null) {
+			ThrowError("[DBS] Error: %s", error);
+		}
+
+		data.SetNum("connection", view_as<int>(db));
 	}
 
 	KeyValues kv = GetNativeCell(3);
-
-	data.Rewind();
-	data.JumpToKey(dbConfName, true);
-	data.SetNum("connection", view_as<int>(db));
-
 	data.JumpToKey("table_data", true);
 
 	kv.Rewind();
