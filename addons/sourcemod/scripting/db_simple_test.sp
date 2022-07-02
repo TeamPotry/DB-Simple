@@ -56,32 +56,32 @@ public void DBS_OnLoadData(DBSData data)
 
 public Action DBSTest_Cmd(int client, int args)
 {
-    int value, noUniqueValue;
-    char temp[8], export[4096];
-    DBSData dbsMain = DBSData.Get();
-    DBSPlayerData playerData = DBSPlayerData.GetClientData(client);
+	int value, noUniqueValue;
+	char temp[8], export[4096];
+	DBSData dbsMain = DBSData.Get();
+	DBSPlayerData playerData = DBSPlayerData.GetClientData(client);
 
-    playerData.GetData("test", "test", "123456", "value", temp, 8);
+	playerData.GetData("test", "test", "123456", "value", temp, 8);
 
-    value = StringToInt(temp) + 1;
-    Format(temp, sizeof(temp), "%d", value);
-    playerData.SetStringData("test", "test", "123456", "value", temp);
+	value = StringToInt(temp) + 1;
+	Format(temp, sizeof(temp), "%d", value);
+	playerData.SetStringData("test", "test", "123456", "value", temp);
 
-    playerData.GetData("test", "test2", "", "value", temp, 8);
+	playerData.GetData("test", "test2", "", "value", temp, 8);
 
-    noUniqueValue = StringToInt(temp) + 1;
-    Format(temp, sizeof(temp), "%d", noUniqueValue);
-    playerData.SetStringData("test", "test2", "", "value", temp);
+	noUniqueValue = StringToInt(temp) + 1;
+	Format(temp, sizeof(temp), "%d", noUniqueValue);
+	playerData.SetStringData("test", "test2", "", "value", temp);
 
-    PrintToChat(client, "test: %d, test1: %d", value, noUniqueValue);
+	PrintToChat(client, "test: %d, test1: %d", value, noUniqueValue);
 
-    playerData.Rewind();
-    playerData.ExportToString(export, 4096);
-    LogMessage("%s", export);
+	playerData.Rewind();
+	playerData.ExportToString(export, 4096);
+	LogMessage("%s", export);
 
-    dbsMain.Rewind();
-    dbsMain.ExportToString(export, 4096);
-    LogMessage("%s", export);
-
+	dbsMain.Rewind();
+	dbsMain.ExportToString(export, 4096);
+	LogMessage("%s", export);
+	
 	return Plugin_Continue;
 }
