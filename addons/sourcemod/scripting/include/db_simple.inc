@@ -3,6 +3,17 @@
 #endif
 #define _db_simple_included
 
+enum DBSDataTypes
+{
+	DBSData_None = 0,
+	DBSData_String, // = WString in SourcePawn
+	DBSData_Int,
+	DBSData_Float,
+	DBSData_BigInt,
+
+	DBSData_NUMTYPES
+};
+
 methodmap DBSData < KeyValues {
 	/*
 		Create new DB data. (with update!)
@@ -18,7 +29,7 @@ methodmap DBSData < KeyValues {
 	public static native DBSData Create();
     public static native DBSData Get();
 
-	/*
+	/*\
 		Create new Table Data.
 		Use this when DBS_OnLoadData function is called.
 
@@ -29,7 +40,7 @@ methodmap DBSData < KeyValues {
 		@param column: table's column name to add
 	*/
 	public static native KeyValues CreateTableData(const char[] tableName, bool noUnique = false);
-	public static native void PushTableData(KeyValues tableData, const char[] column, const KvDataTypes dataType);
+	public static native void PushTableData(KeyValues tableData, const char[] column, const DBSDataTypes dataType);
 
 	public native void Add(const char[] dbConfName, KeyValues tableData);
 
@@ -52,7 +63,7 @@ methodmap DBSData < KeyValues {
 
 		@return: column data type
 	*/
-	public native KvDataTypes GetTableDataType(const char[] dbConfName, const char[] tableName, const char[] column);
+	public native DBSDataTypes GetTableDataType(const char[] dbConfName, const char[] tableName, const char[] column);
 }
 
 methodmap DBSPlayerData < KeyValues {

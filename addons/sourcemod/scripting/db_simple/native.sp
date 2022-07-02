@@ -667,18 +667,18 @@ public int Native_DBSPlayerData_GetData(Handle plugin, int numParams)
 		playerData.JumpToKey(TEMP_UNIQUE_ID, true);
 
 
-	KvDataTypes dataType = LoadedDBData.GetTableDataType(dbConfName, tableName, column);
+	DBSDataTypes dataType = LoadedDBData.GetTableDataType(dbConfName, tableName, column);
 	switch(dataType)
 	{
-		case KvData_Int:
+		case DBSData_Int:
 		{
 			return playerData.GetNum(column, 0);
 		}
-		case KvData_Float:
+		case DBSData_Float:
 		{
 			return view_as<int>(playerData.GetFloat(column, 0.0));
 		}
-		case KvData_String:
+		case DBSData_String:
 		{
 			playerData.GetString(column, result, sizeof(result), "");
 			SetNativeString(6, result, GetNativeCell(7));
@@ -711,18 +711,18 @@ public int Native_DBSPlayerData_SetData(Handle plugin, int numParams)
 	else
 		playerData.JumpToKey(TEMP_UNIQUE_ID, true);
 
-	KvDataTypes dataType = LoadedDBData.GetTableDataType(dbConfName, tableName, column);
+	DBSDataTypes dataType = LoadedDBData.GetTableDataType(dbConfName, tableName, column);
 	switch(dataType)
 	{
-		case KvData_Int:
+		case DBSData_Int:
 		{
 			playerData.SetNum(column, GetNativeCell(6));
 		}
-		case KvData_Float:
+		case DBSData_Float:
 		{
 			playerData.SetFloat(column, GetNativeCell(6));
 		}
-		case KvData_String:
+		case DBSData_String:
 		{
 			char result[256]; // TODO: 동적 할당?
 			GetNativeString(6, result, sizeof(result));
