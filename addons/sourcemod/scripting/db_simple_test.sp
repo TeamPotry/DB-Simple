@@ -19,11 +19,24 @@ public void OnPluginStart()
 	RegConsoleCmd("dbs_test", DBSTest_Cmd, "TEST");
 }
 
+static const DBSDataTypes g_iTestColumnDataType[] = {
+	DBSData_Int,
+	DBSData_String,
+	DBSData_String,
+	DBSData_String
+};
+
 static const char g_strTestColumn[][] = {
 	"steam_id",
 	"unique_id",
 	"value",
 	"value_2"
+};
+
+static const DBSDataTypes g_iNoUniqueTestColumnDataType[] = {
+	DBSData_Int,
+	DBSData_String,
+	DBSData_String
 };
 
 static const char g_strNoUniqueTestColumn[][] = {
@@ -39,12 +52,12 @@ public void DBS_OnLoadData(DBSData data)
 
 	for(int loop = 0; loop < sizeof(g_strTestColumn); loop++)
 	{
-		DBSData.PushTableData(tabledata, g_strTestColumn[loop], DBSData_String);
+		DBSData.PushTableData(tabledata, g_strTestColumn[loop], g_iTestColumnDataType[loop]);
 	}
 
 	for(int loop = 0; loop < sizeof(g_strNoUniqueTestColumn); loop++)
 	{
-		DBSData.PushTableData(tableTestData, g_strNoUniqueTestColumn[loop], DBSData_String);
+		DBSData.PushTableData(tableTestData, g_strNoUniqueTestColumn[loop], g_iNoUniqueTestColumnDataType[loop]);
 	}
 
 	data.Add("test", tabledata);
