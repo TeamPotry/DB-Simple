@@ -5,7 +5,7 @@
 #include "db_simple/transaction.sp"
 #include "db_simple/native.sp"
 
-#define PLUGIN_VERSION "20190729"
+#define PLUGIN_VERSION "20220710"
 
 public Plugin myinfo=
 {
