@@ -31,13 +31,9 @@ jobs:
          chmod +x spcomp
          mkdir compiled 
          ./compile.sh db_simple.sp db_simple_test.sp
-         
-         cd ./compiled
-         mkdir ${{ matrix.sm-version }}
-         mv -f *.smx ./${{ matrix.sm-version }}
 
       - name: Upload plugin artifact
         uses: actions/upload-artifact@master
         with:
-          name: Plugins
-          path: addons/sourcemod/scripting/compiled/${{ matrix.sm-version }}
+          name: ${{ matrix.sm-version }}
+          path: addons/sourcemod/scripting/compiled
