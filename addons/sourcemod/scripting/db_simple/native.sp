@@ -39,7 +39,7 @@ public int Native_DBSData_Get(Handle plugin, int numParams)
 
 public int Native_DBSData_CreateTableData(Handle plugin, int numParams)
 {
-	char tableName[128];
+	char tableName[DBS_NAME_LENGTH];
 	GetNativeString(1, tableName, sizeof(tableName));
 	KeyValues kv = new KeyValues(tableName, "no unique", GetNativeCell(2) > 0 ? "1" : "0");
 
@@ -50,7 +50,7 @@ public int Native_DBSData_PushTableData(Handle plugin, int numParams)
 {
 	KeyValues tableData = GetNativeCell(1);
 
-	char column[128];
+	char column[DBS_NAME_LENGTH];
 	GetNativeString(2, column, sizeof(column));
 
 	tableData.Rewind();
@@ -63,7 +63,7 @@ public int Native_DBSData_PushTableData(Handle plugin, int numParams)
 public int Native_DBSData_GetTableDataType(Handle plugin, int numParams)
 {
 	DBSData data = GetNativeCell(1);
-	char dbConfName[128], tableName[128], column[128];
+	char dbConfName[DBS_NAME_LENGTH], tableName[DBS_NAME_LENGTH], column[DBS_NAME_LENGTH];
 
 	GetNativeString(2, dbConfName, sizeof(dbConfName));
 	GetNativeString(3, tableName, sizeof(tableName));
@@ -81,7 +81,7 @@ public int Native_DBSData_Add(Handle plugin, int numParams)
 	DBSData data = GetNativeCell(1);
 	Database db = null;
 
-	char dbConfName[128], error[256];
+	char dbConfName[DBS_NAME_LENGTH], error[256];
 	GetNativeString(2, dbConfName, sizeof(dbConfName));
 
 	// Is this DB already connected?
@@ -122,12 +122,12 @@ public int Native_DBSData_GetNames(Handle plugin, int numParams)
 {
 	DBSData data = GetNativeCell(1);
 
-	char name[128], dbConfName[128], tableName[128];
+	char name[DBS_NAME_LENGTH], dbConfName[DBS_NAME_LENGTH], tableName[DBS_NAME_LENGTH];
 	int posId;
 	data.GetSectionSymbol(posId);
 	data.Rewind();
 
-	ArrayList array = new ArrayList(128);
+	ArrayList array = new ArrayList(DBS_NAME_LENGTH);
 
 	switch(numParams)
 	{
@@ -182,7 +182,7 @@ public int Native_DBSData_GetConnection(Handle plugin, int numParams)
 {
 	DBSData data = GetNativeCell(1);
 
-	char dbConfName[128];
+	char dbConfName[DBS_NAME_LENGTH];
 	int posId, result = 0;
 	data.GetSectionSymbol(posId);
 	data.Rewind();
@@ -199,7 +199,7 @@ public int Native_DBSData_IsTableNoUnique(Handle plugin, int numParams)
 {
 	DBSData data = GetNativeCell(1);
 
-	char dbConfName[128], tableName[128];
+	char dbConfName[DBS_NAME_LENGTH], tableName[DBS_NAME_LENGTH];
 	int posId, result;
 	data.GetSectionSymbol(posId);
 	data.Rewind();
@@ -220,7 +220,7 @@ public int Native_DBSPlayerData_Load(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
 	Database db;
-	char queryStr[512], dbConfName[128], tableName[128], column[128], authId[25];
+	char queryStr[512], dbConfName[DBS_NAME_LENGTH], tableName[DBS_NAME_LENGTH], column[DBS_NAME_LENGTH], authId[25];
 	GetClientAuthId(client, AuthId_SteamID64, authId, 25);
 	DBSPlayerData playerData = view_as<DBSPlayerData>(new KeyValues("DB_PlayerData", "auth_id", authId));
 
@@ -277,7 +277,7 @@ enum
 
 public void DBSPlayerData_Load(Database db, DBResultSet results, const char[] error, DBSPlayerdata_Preparing preparingData)
 {
-	char temp[256], dbConfName[128], tableName[128], column[128], unique[128];
+	char temp[256], dbConfName[DBS_NAME_LENGTH], tableName[DBS_NAME_LENGTH], column[DBS_NAME_LENGTH], unique[DBS_NAME_LENGTH];
 	int client = preparingData.ClientIndex, firstPosId, count = 0;
 	bool noUnique;
 	preparingData.GetDBConfigName(dbConfName, sizeof(dbConfName));
@@ -361,8 +361,9 @@ public int Native_DBSPlayerData_Update(Handle plugin, int numParams)
 	DBSPlayerData playerData = GetNativeCell(1);
 	Database db;
 
-	char queryStr[512], dbConfName[128], tableName[128], unique[128], column[128], authId[25];
-	char authIdColumn[128], uniqueColumn[128], data[128];
+	char queryStr[512], dbConfName[DBS_NAME_LENGTH], tableName[DBS_NAME_LENGTH],
+			unique[DBS_NAME_LENGTH], column[DBS_NAME_LENGTH], authId[25];
+	char authIdColumn[DBS_NAME_LENGTH], uniqueColumn[DBS_NAME_LENGTH], data[DBS_NAME_LENGTH];
 	bool noUnique = false;
 
 	playerData.Rewind();
@@ -541,7 +542,8 @@ public void OnTransactionError(Database db, any data, int numQueries, const char
 public int Native_DBSPlayerData_GetData(Handle plugin, int numParams)
 {
 	DBSPlayerData playerData = view_as<DBSPlayerData>(GetNativeCell(1));
-	char dbConfName[128], tableName[128], column[128], result[256], unique[128];
+	char dbConfName[DBS_NAME_LENGTH], tableName[DBS_NAME_LENGTH], column[DBS_NAME_LENGTH],
+		result[256], unique[DBS_NAME_LENGTH];
 
 	GetNativeString(2, dbConfName, sizeof(dbConfName));
 	GetNativeString(3, tableName, sizeof(tableName));
@@ -586,7 +588,8 @@ public int Native_DBSPlayerData_GetData(Handle plugin, int numParams)
 public int Native_DBSPlayerData_SetData(Handle plugin, int numParams)
 {
 	DBSPlayerData playerData = view_as<DBSPlayerData>(GetNativeCell(1));
-	char dbConfName[128], tableName[128], column[128], unique[128];
+	char dbConfName[DBS_NAME_LENGTH], tableName[DBS_NAME_LENGTH],
+			column[DBS_NAME_LENGTH], unique[DBS_NAME_LENGTH];
 
 	GetNativeString(2, dbConfName, sizeof(dbConfName));
 	GetNativeString(3, tableName, sizeof(tableName));
@@ -633,9 +636,9 @@ public int Native_DBSPlayerData_GetUniqueNames(Handle plugin, int numParams)
 {
 	DBSPlayerData playerData = GetNativeCell(1);
 
-	char dbConfName[128], tableName[128], name[128];
+	char dbConfName[DBS_NAME_LENGTH], tableName[DBS_NAME_LENGTH], name[DBS_NAME_LENGTH];
 	int posId;
-	ArrayList array = new ArrayList(128);
+	ArrayList array = new ArrayList(DBS_NAME_LENGTH);
 
 	playerData.GetSectionSymbol(posId);
 	playerData.Rewind();

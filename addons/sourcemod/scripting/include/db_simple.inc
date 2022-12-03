@@ -3,6 +3,8 @@
 #endif
 #define _db_simple_included
 
+#define DBS_NAME_LENGTH         128		// DB config name, table, etc.
+
 enum DBSDataTypes
 {
 	DBSData_None = 0,
