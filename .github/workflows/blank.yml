@@ -23,7 +23,9 @@ jobs:
 
       - name: Setup Include
         working-directory: addons/sourcemod/scripting
-        run: echo running Setup Include, but we have nothing to do for now.
+        run: |
+          wget "https://raw.githubusercontent.com/thraaawn/SMJansson/master/pawn/scripting/include/smjansson.inc" -P include
+          wget "https://raw.githubusercontent.com/Nopied/SteamWorks/master/Pawn/includes/SteamWorks.inc" -P include
 
       - name: Compile
         working-directory: addons/sourcemod/scripting
