@@ -4,7 +4,6 @@ void Native_Init()
 	CreateNative("DBSData.Get", Native_DBSData_Get);
 	CreateNative("DBSData.CreateTableData", Native_DBSData_CreateTableData);
 	CreateNative("DBSData.PushTableData", Native_DBSData_PushTableData);
-	// CreateNative("DBSData.PushTableIndexSet", Native_DBSData_PushTableIndexSet);
 	CreateNative("DBSData.GetTableDataType", Native_DBSData_GetTableDataType);
 	CreateNative("DBSData.Add", Native_DBSData_Add);
 	CreateNative("DBSData.GetDBConfNames", Native_DBSData_GetNames);
@@ -15,8 +14,6 @@ void Native_Init()
 
 	CreateNative("DBSPlayerData.Load", Native_DBSPlayerData_Load);
 	CreateNative("DBSPlayerData.GetClientData", Native_DBSPlayerData_GetClientData);
-	// CreateNative("DBSPlayerData.GetCurrentIndexSet", Native_DBSPlayerData_GetCurrentIndexSet);
-	// CreateNative("DBSPlayerData.SetCurrentIndexSet", Native_DBSPlayerData_SetCurrentIndexSet);
 	CreateNative("DBSPlayerData.Update", Native_DBSPlayerData_Update);
 	CreateNative("DBSPlayerData.GetData", Native_DBSPlayerData_GetData);
 	CreateNative("DBSPlayerData.SetData", Native_DBSPlayerData_SetData);
@@ -62,28 +59,6 @@ public int Native_DBSData_PushTableData(Handle plugin, int numParams)
 	
 	return 0;
 }
-
-/*
-public int Native_DBSData_PushTableIndexSet(Handle plugin, int numParams)
-{
-	KeyValues tableData = GetNativeCell(1);
-
-	char indexSet[128];
-	GetNativeString(2, indexSet, sizeof(indexSet));
-
-	int indexType = GetNativeCell(3);
-
-	tableData.Rewind();
-	tableData.JumpToKey("index", true);
-	tableData.JumpToKey(indexSet, true);
-
-	for(int loop = 4; loop < numParams; loop++)
-	{
-		GetNativeString(loop, indexSet, sizeof(indexSet));
-		tableData.SetNum(indexSet, indexType);
-	}
-}
-*/
 
 public int Native_DBSData_GetTableDataType(Handle plugin, int numParams)
 {
@@ -345,9 +320,6 @@ public void DBSPlayerData_Load(Database db, DBResultSet results, const char[] er
 				do
 				{
 					LoadedDBData.GetSectionName(column, sizeof(column));
-					// LoadedPlayerData[client].JumpToKey(column, true);
-
-					// LogError("%s", column);
 
 					results.FetchString(count++, temp, 256);
 					LoadedPlayerData[client].SetString(column, temp);
@@ -364,39 +336,6 @@ public int Native_DBSPlayerData_GetClientData(Handle plugin, int numParams)
 {
     return view_as<int>(LoadedPlayerData[GetNativeCell(1)]);
 }
-/*
-public int Native_DBSPlayerData_GetCurrentIndexSet(Handle plugin, int numParams)
-{
-	DBSPlayerData playerData = view_as<DBSPlayerData>(GetNativeCell(1));
-	char dbConfName[128], tableName[128], result[256];
-
-	GetNativeString(2, dbConfName, sizeof(dbConfName));
-	GetNativeString(3, tableName, sizeof(tableName));
-
-	playerData.Rewind();
-	if(!playerData.JumpToKey(dbConfName) || !playerData.JumpToKey(tableName))
-		ThrowError("Must add index set before getting this. (%s > %s)", dbConfName, tableName);
-
-	playerData.GetString("current indexset", result, sizeof(result));
-	SetNativeString(4, result, GetNativeCell(5));
-}
-
-public int Native_DBSPlayerData_SetCurrentIndexSet(Handle plugin, int numParams)
-{
-	DBSPlayerData playerData = view_as<DBSPlayerData>(GetNativeCell(1));
-	char dbConfName[128], tableName[128], indexSet[128];
-
-	GetNativeString(2, dbConfName, sizeof(dbConfName));
-	GetNativeString(3, tableName, sizeof(tableName));
-	GetNativeString(4, indexSet, sizeof(indexSet));
-
-	playerData.Rewind();
-	playerData.JumpToKey(dbConfName, true);
-	playerData.JumpToKey(tableName, true);
-
-	playerData.SetString("current indexset", indexSet);
-}
-*/
 
 enum
 {
