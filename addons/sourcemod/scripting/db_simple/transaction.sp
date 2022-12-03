@@ -1,3 +1,23 @@
+methodmap TEST < ArrayList {
+    
+}
+
+enum struct DBSSnapshot
+{
+    int curtime[2];
+    char authId[32];
+    char dbConfName[128];
+    char tableName[128];
+
+    char value[256];
+
+    TEST test() { return null; }
+    void Test2()
+    {
+        PrintToServer("%s", this.authId);
+    }
+}
+
 enum
 {
 	Load_ClientIndex = 0,
