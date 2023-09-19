@@ -1,5 +1,7 @@
 #include <sourcemod>
 #include <db_simple>
+#include <smjansson>
+#include <SteamWorks>
 
 #include "db_simple/global_var.sp"
 #include "db_simple/transaction.sp"
