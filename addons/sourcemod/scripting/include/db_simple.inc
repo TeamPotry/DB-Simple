@@ -21,7 +21,7 @@ enum DBSDataTypes
 methodmap DBSData < KeyValues {
 	#define private public
 
-/*
+/**
 *	Create new global DB data which collects the information of connections and table datas.
 *	Check DBS_OnLoadData function.
 *	If you are about to get this data, use Get() function instead of Create().
@@ -29,7 +29,7 @@ methodmap DBSData < KeyValues {
 private static native DBSData Create();
     public static native DBSData Get();
 
-/*
+/**
 *	Create new table data.
 *	Use this when DBS_OnLoadData function is called.
 *	Create and Push your table's columns and their data type.
@@ -44,7 +44,7 @@ private static native DBSData Create();
 */
 	public static native KeyValues CreateTableData(const char[] tableName, bool noUnique = false);
 
-/*
+/**
 * 	Push the data of column (name, type) into the table data created from CreateTableData().
 *	This will not close tableData. It should be closed manually to avoid memory leak.
 *
@@ -54,14 +54,14 @@ private static native DBSData Create();
 */
 	public static native void PushTableData(KeyValues tableData, const char[] column, const DBSDataTypes dataType);
 
-/*
+/**
 *	@param tableData	: The data already created from CreateTableData();
 *	@param column		: table's column name to add
 *
 * 	@return				: If true, The table has no unique index.
 */
 	public native bool IsTableNoUnique(const char[] dbConfName, const char[] tableName);
-/*
+/**
 *	Add the table data to specified DB connection.
 *	This will try to connect DB. 
 *
@@ -73,14 +73,14 @@ private static native DBSData Create();
 */
 	public native void Add(const char[] dbConfName, KeyValues tableData);
 
-/*
+/**
 *	Gets currently collected DB connections.
 *
 *	@return				:	Array of Databases.
 */
     public native ArrayList GetDBConfNames();
 
-/*
+/**
 *	Gets currently collected table data in specified DB connection.
 *
 *	@param dbConfName	:	Database defined in databases.cfg
@@ -88,7 +88,7 @@ private static native DBSData Create();
 *	@return				:	Array of tables.
 */
     public native ArrayList GetTableNames(const char[] dbConfName);
-/*
+/**
 *	Gets currently collected columns in specified table data in DB connection.
 *
 *	@param dbConfName	:	Database defined in databases.cfg
@@ -98,7 +98,7 @@ private static native DBSData Create();
 */
     public native ArrayList GetColumnNames(const char[] dbConfName, const char[] tableName);
 
-/*
+/**
 *	Gets specified DB connection.
 *
 *	@param dbConfName	:	Database defined in databases.cfg
@@ -110,7 +110,7 @@ private static native DBSData Create();
 	// ...: column names
 	// public static native void PushTableIndexSet(KeyValues tableData, const char[] indexSet, int indexType, any ...);
 
-/*
+/**
 *	Gets table's data type.
 *
 *	@param dbConfName	: 	Database defined in databases.cfg
@@ -124,7 +124,8 @@ private static native DBSData Create();
 
 methodmap DBSPlayerData < KeyValues {
 	#define private public
-/*
+/**
+* 	DO NOT USE THIS FUNCTION ON OTHER PLUGIN.
 *	Create Player Data KeyValues.
 *	After this, DBS_OnLoadPlayerData Forward function called.
 *
@@ -132,7 +133,7 @@ methodmap DBSPlayerData < KeyValues {
 */
 private static native DBSPlayerData Load(int client);
 
-/*
+/**
 *	Gets client's player data.
 * 	This returns all of client's data.
 *
@@ -145,14 +146,14 @@ private static native DBSPlayerData Load(int client);
 	// public native void GetCurrentIndexSet(const char[] dbConfName, const char[] tableName, char[] indexSet, int buffer);
 	// public native void SetCurrentIndexSet(const char[] dbConfName, const char[] tableName, const char[] indexSet);
 
-/*
+/**
 *	Send update query, writed by current player's data.
 *
 *	AGAIN, DO NOT USE THIS FUNCTION ON OTHER PLUGIN.
 */
 private native void Update();
 
-/*
+/**
 *	Gets client's player data on specified section.
 * 
 *	@param dbConfName		:	Database defined in databases.cfg
@@ -166,7 +167,7 @@ private native void Update();
 *	@error					:	datatype is invalid.
 */
 	public native any GetData(const char[] dbConfName, const char[] tableName, const char[] unique = "", const char[] column, char[] value = "", int buffer = 0);
-/*
+/**
 *	Sets client's player data on specified section.
 * 	To save string data, use SetStringData() instead.
 * 
@@ -180,7 +181,7 @@ private native void Update();
 *	@error					:	datatype is invalid.
 */
 	public native void SetData(const char[] dbConfName, const char[] tableName, const char[] unique = "", const char[] column, any value);
-/*
+/**
 *	Sets client's player 'string' data on specified section.
 * 
 *	@param dbConfName		:	Database defined in databases.cfg
@@ -194,7 +195,7 @@ private native void Update();
 */
 	public native void SetStringData(const char[] dbConfName, const char[] tableName, const char[] unique = "", const char[] column, char[] strValue);
 
-/*
+/**
 *	Gets client's unique index on specified section.
 * 
 *	@param dbConfName		:	Database defined in databases.cfg
@@ -205,13 +206,13 @@ private native void Update();
     public native ArrayList GetUniqueNames(const char[] dbConfName, const char[] tableName);
 }
 
-/*
+/**
 *   Called when each map starts. (or plugin reloaded.)
 *	When this called, The other plugin's table data can be saved throught Forward function to main data.
 */
 forward void DBS_OnLoadData(DBSData data);
 
-/*
+/**
     Called when server is loaded player's data.
 */
 forward void DBS_OnLoadPlayerData(DBSPlayerData playerData, int client);
