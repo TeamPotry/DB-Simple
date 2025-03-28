@@ -19,14 +19,16 @@ enum DBSDataTypes
 // IMPORTANT: DO NOT USE FUNCTIONS WITH PRIVATE TAG! THESE ARE SUPPOSED NOT TO BE USED ON OTHER PLUGINS!
 
 methodmap DBSData < KeyValues {
-	#define private public
-
 /**
+*  	DO NOT USE THIS FUNCTION ON OTHER PLUGIN.
+* 
 *	Create new global DB data which collects the information of connections and table datas.
 *	Check DBS_OnLoadData function.
 *	If you are about to get this data, use Get() function instead of Create().
+*  
+* 	AGAIN, DO NOT USE THIS FUNCTION ON OTHER PLUGIN.
 */
-private static native DBSData Create();
+public static native DBSData Create();
     public static native DBSData Get();
 
 /**
@@ -123,15 +125,15 @@ private static native DBSData Create();
 }
 
 methodmap DBSPlayerData < KeyValues {
-	#define private public
 /**
 * 	DO NOT USE THIS FUNCTION ON OTHER PLUGIN.
+* 
 *	Create Player Data KeyValues.
 *	After this, DBS_OnLoadPlayerData Forward function called.
 *
 *	AGAIN, DO NOT USE THIS FUNCTION ON OTHER PLUGIN.
 */
-private static native DBSPlayerData Load(int client);
+public static native DBSPlayerData Load(int client);
 
 /**
 *	Gets client's player data.
@@ -147,11 +149,13 @@ private static native DBSPlayerData Load(int client);
 	// public native void SetCurrentIndexSet(const char[] dbConfName, const char[] tableName, const char[] indexSet);
 
 /**
+*	DO NOT USE THIS FUNCTION ON OTHER PLUGIN.
+* 
 *	Send update query, writed by current player's data.
 *
 *	AGAIN, DO NOT USE THIS FUNCTION ON OTHER PLUGIN.
 */
-private native void Update();
+public native void Update();
 
 /**
 *	Gets client's player data on specified section.
