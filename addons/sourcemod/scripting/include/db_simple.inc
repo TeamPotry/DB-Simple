@@ -234,7 +234,7 @@ public SharedPlugin __pl_db_simple=
 };
 
 #if !defined REQUIRE_PLUGIN
-public __pl_db_simple_SetNTVOptional()
+public void __pl_db_simple_SetNTVOptional()
 {
     MarkNativeAsOptional("DBSData.Create");
     MarkNativeAsOptional("DBSData.Get");
